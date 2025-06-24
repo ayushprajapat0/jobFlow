@@ -1,0 +1,15 @@
+<svg width="220" height="60" viewBox="0 0 220 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Icon (tie inside circular pin shape) -->
+  <g>
+    <circle cx="30" cy="30" r="20" fill="#007bff"/>
+    <path d="M30 15C27 20 27 40 30 45C33 40 33 20 30 15Z" fill="white"/>
+    <path d="M28 26L30 28L32 26L30 22L28 26Z" fill="#007bff"/>
+  </g>
+
+  <!-- Text -->
+  <text x="60" y="37" font-family="Segoe UI, sans-serif" font-size="26" font-weight="600" fill="#000000">
+    
+    <tspan fill="#000000">job</tspan>
+    <tspan fill="#007bff">Flow</tspan>
+  </text>
+</svg>
