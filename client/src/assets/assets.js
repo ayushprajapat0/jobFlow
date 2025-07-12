@@ -1,4 +1,5 @@
 import logo from "./logo.svg";
+import a3 from './a3.png'
 import search_icon from "./search_icon.svg";
 import company_icon from "./company_icon.svg";
 import microsoft_logo from "./microsoft_logo.svg";

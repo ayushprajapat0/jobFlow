@@ -2,8 +2,13 @@ import React, { useEffect } from 'react'
 import Quill from 'quill';
 import { useRef , useState } from 'react';
 import { JobCategories, JobLocations } from '../assets/assets';
+import axios from 'axios';
+import { useContext } from 'react';
+import { AppContext } from '../context/AppContext';
+import { toast } from 'react-toastify';
 
 const AddJob = () => {
+    const {backendUrl,companyToken} = useContext(AppContext)
     const [title, setTitle] = React.useState("");
     const [location, setLocation] = React.useState("Banglore");
     const [category, setCategory] = React.useState("Programming");
@@ -13,6 +18,37 @@ const AddJob = () => {
     const editorRef = React.useRef(null);
     const quillRef = React.useRef(null);
 
+    const onSubmitHandler = async (e)=>{
+
+        e.preventDefault()
+
+        try {
+            
+            const description = quillRef.current.root.innerHTML
+
+            const {data} = await axios.post(backendUrl + '/api/company/post-job' , {
+                title,
+                description,
+                location,
+                salary,
+                category,
+                level
+            },{headers:{token:companyToken}})
+
+            if(data.success){
+                toast.success(data.message);
+                setTitle('')
+                setSalary(0)
+                quillRef.current.root.innerHTML = ""
+            }else{
+                toast.error(data.message)
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
+
+    }
+
     useEffect(() => {
         //init quill only once
         if(!quillRef.current && editorRef.current){
@@ -20,10 +56,10 @@ const AddJob = () => {
                 theme: 'snow',
             });
         }
-    }, []);
+    }, [])
 
   return (
-    <form className='constainer p-4 flex w-full flex-col gap-3 items-start' >
+    <form onSubmit={onSubmitHandler} className='constainer p-4 flex w-full flex-col gap-3 items-start' >
         <div className='w-full'>
             <p className='mb-2'>Job Title</p>
             <input type="text" placeholder='Type Here' onChange={e=>setTitle(e.target.value)} value={title} required
