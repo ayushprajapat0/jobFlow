@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
 import { assets, jobsApplied } from '../assets/assets';
 import moment from 'moment';
@@ -15,7 +15,7 @@ const Application = () => {
   const {getToken} = useAuth();
 
 
-  const {backendUrl , userData , userApplications , fetchUserData ,  } = useContext(AppContext);
+  const {backendUrl , userData , userApplications , fetchUserData , fetchUserApplications  } = useContext(AppContext);
 
 
   const updateResume = async ()=>{
@@ -50,7 +50,11 @@ const Application = () => {
   setResume(null);
   }
 
-
+useEffect(()=>{
+  if(user){
+    fetchUserApplications();
+  }
+},[user]);
 
 
   return (
@@ -71,7 +75,7 @@ const Application = () => {
           </>
           :
           <div className='flex gap-2'>
-            <a className='bg-blue-100 text-blue-600 px-4 py-2 rounded-lg' href="">
+            <a className='bg-blue-100 text-blue-600 px-4 py-2 rounded-lg' target='_blank' href={userData.resume}>
               Resume
             </a>
             <button onClick={()=>setIsEdit(true)} className='text-gray-500 border border-gray-300 rounded-lg px-4 py-2'>Edit</button>
@@ -105,7 +109,7 @@ const Application = () => {
                 <td className='py-2 px-4 border-b border-gray-200 max-sm:hidden'>{job.jobId.location}</td>
                 <td className='py-2 px-4 border-b border-gray-200 max-sm:hidden'>{moment(job.date).format('ll')}</td>
                 <td className='py-2 px-4 border-b border-gray-200'>
-                  <span className={`${job.status === 'Accepted' ? 'bg-green-100': job.status === 'Rejected' ? 'bg-red-100':'bg-blue-100' } px-4 py-1.5 rounded `}>{job.status}</span>
+                  <span className={`${job.status === 'accepted' ? 'bg-green-100': job.status === 'rejected' ? 'bg-red-100':'bg-blue-100' } px-4 py-1.5 rounded `}>{job.status}</span>
                 </td>
               </tr>
             ):(null)
