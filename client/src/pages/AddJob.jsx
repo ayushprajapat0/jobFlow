@@ -33,7 +33,7 @@ const AddJob = () => {
                 salary,
                 category,
                 level
-            },{headers:{token:companyToken}})
+            },{headers:{Authorization: `Bearer ${companyToken}`}})
 
             if(data.success){
                 toast.success(data.message);

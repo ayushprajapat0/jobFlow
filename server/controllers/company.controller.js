@@ -2,7 +2,7 @@ import Company from "../models/Company.js"
 import JobApplication from "../models/JobApplication.js";
 import bcrypt from 'bcrypt'
 import { v2 as cloudinary} from 'cloudinary';
-import generateToken from "../utils/generateToken.js";
+import { generateToken } from "../utils/generateToken.js";
 import Job from '../models/Job.js'
 
 //reg new company
@@ -85,24 +85,21 @@ export const loginCompany = async (req,res)=>{
 
 //get company data 
 export const getCompanyData = async (req,res)=>{
-
-    
-
     try {
-        const company = req.company;
-        res.json({success  : true , company});
+        const company = await Company.findById(req.userId);
+        if (!company) {
+            return res.json({success: false, message: "Company not found"});
+        }
+        res.json({success: true, company});
     } catch (error) {
-        res.json({success  : true , message:error.message});
+        res.json({success: false, message: error.message});
     }
-
 }
 
 //post a new job
 export const postJob = async (req,res)=>{
-
     const { title, description, location, salary,category,level}=req.body;
-
-    const companyId = req.company._id;
+    const companyId = req.userId;
 
     try {
         const newJob = new Job({
@@ -122,15 +119,12 @@ export const postJob = async (req,res)=>{
     } catch (error) {
         res.json({success:false,message:error.message});
     }
-
 }
 
 //get company job applicants
 export const getCompanyJobApplicants = async (req,res)=>{
-
     try {
-        
-        const companyId = req.company._id;
+        const companyId = req.userId;
         //find applications for user and pupulate related data
         const applications = await JobApplication.find({companyId})
         .populate('userId','name image resume')
@@ -141,14 +135,12 @@ export const getCompanyJobApplicants = async (req,res)=>{
     } catch (error) {
         return res.json({success:false , message:error.message});
     }
-
 }
 
 //get company posted jobs
 export const getCompanyPostedJobs = async (req,res)=>{
-
     try {
-        const companyId = req.company._id;
+        const companyId = req.userId;
 
         const jobs = await Job.find({companyId});
 
@@ -163,12 +155,10 @@ export const getCompanyPostedJobs = async (req,res)=>{
     } catch (error) {
         res.json({success : false , message : error.message})
     }
-
 }
 
 //change job application status
 export const changeJobApplicationStatus = async (req,res)=>{
-
     const {id,status}=req.body;
     try{
         await JobApplication.findOneAndUpdate({_id:id},{status});
@@ -176,15 +166,13 @@ export const changeJobApplicationStatus = async (req,res)=>{
     } catch (error) {
         res.json({success:false , message:error.message});
     }
-
 }
 
 //change job visibility
 export const chnageJobVisibility = async (req,res)=>{
-
     try {
         const {id} = req.body;
-        const companyId = req.company._id;
+        const companyId = req.userId;
 
         const job = await Job.findById(id);
 
@@ -197,7 +185,5 @@ export const chnageJobVisibility = async (req,res)=>{
         res.json({success:true , job});
     } catch (error) {
         res.json({success:false , message:error.message});
-
     }
-
 }

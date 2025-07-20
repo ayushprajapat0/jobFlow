@@ -1,20 +1,21 @@
-import jwt from 'jsonwebtoken';
-import Company from '../models/Company.js';
+import { verifyToken } from '../utils/generateToken.js';
 
-export const protectCompany = async (req,res,next)=>{
-    const token = req.headers.token
-
-    if(!token){
-        return res.json({success:false,message:"Not authorized login again"})
-    }
-
+export const authMiddleware = async (req, res, next) => {
     try {
-        const decoded = jwt.verify(token , process.env.JWT_SECRET)
+        const token = req.headers.authorization?.replace('Bearer ', '');
+        
+        if (!token) {
+            return res.status(401).json({ success: false, message: 'No token provided' });
+        }
 
-        req.company = await Company.findById(decoded.id).select('-password')
+        const decoded = verifyToken(token);
+        if (!decoded) {
+            return res.status(401).json({ success: false, message: 'Invalid token' });
+        }
 
+        req.userId = decoded.userId;
         next();
     } catch (error) {
-        res.json({success:false,message:error.message});
+        res.status(401).json({ success: false, message: 'Authentication failed' });
     }
-}
+};
