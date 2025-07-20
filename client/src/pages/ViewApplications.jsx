@@ -9,10 +9,12 @@ const ViewApplications = () => {
 
     const {backendUrl , companyToken}=useContext(AppContext);
 
-    const [applications , setApplications]=useState([]);
+    const [applications, setApplications] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const fetchCompanyJobApplications=async()=>{
         try {
+            setLoading(true);
             const {data} = await axios.get(backendUrl+'/api/company/applicants',
                 {headers : {
                     Authorization : `Bearer ${companyToken}`
@@ -24,9 +26,13 @@ const ViewApplications = () => {
                 console.log(applications);
             }else{
                 toast.error(data.message);
+                setApplications([]);
             }
         } catch (error) {
             toast.error(error.message);
+            setApplications([]);
+        } finally {
+            setLoading(false);
         }
     };
     const changeJobApplicationStatus=async(id,status)=>{
@@ -57,9 +63,19 @@ const ViewApplications = () => {
         }
     },[companyToken]);
 
-  return applications ?applications.length === 0 ? (<div className='flex justify-center items-center h-[70vh]'><p className='text-xl font-medium'>
-    No Applications Found
-    </p></div> ) :(
+  if (loading) {
+    return <Loading />
+  }
+
+  if (!applications || applications.length === 0) {
+    return (
+      <div className='flex justify-center items-center h-[70vh]'>
+        <p className='text-xl font-medium'>No Applications Found</p>
+      </div>
+    )
+  }
+
+  return (
     <div className='container p-4 mx-auto'>
         <div >
             <table className='w-full max-w-4xl bg-white border border-gray-200 max-sm:text-sm'>
@@ -114,7 +130,7 @@ const ViewApplications = () => {
             </table>
         </div>
     </div>
-  ): <Loading/>
+  )
 }
 
 export default ViewApplications

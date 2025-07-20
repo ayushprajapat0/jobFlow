@@ -5,7 +5,7 @@ import { assets, JobCategories, JobLocations} from '../assets/assets';
 import JobCard from './JobCard';
 
 const JobListing = () => {
-    const {isSearched, searchFilter , setSearchFilter , jobs} = useContext(AppContext);
+    const {isSearched, searchFilter , setSearchFilter , jobs, jobsLoading} = useContext(AppContext);
 
     const [showFilter , setShowFilter] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -118,14 +118,21 @@ const JobListing = () => {
             <section className='w-full lg:w-3/4 text-gray-800 max-lg:px-4 '>
                 <h3 className='font-medium text-3xl py-2' id='job-list'>Latest Jobs</h3>
                 <p className='mb-8'>Get your desired job from top companies</p>
-                <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3  gap-4'>
-                   {filteredJobs.slice((currentPage-1)*6,currentPage*6).map((job, index) => (
-                       <JobCard key={index} job={job} />
-                   ))} 
-                </div>
+                
+                {jobsLoading ? (
+                    <div className='flex justify-center items-center h-64'>
+                        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600'></div>
+                    </div>
+                ) : (
+                    <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3  gap-4'>
+                       {filteredJobs.slice((currentPage-1)*6,currentPage*6).map((job, index) => (
+                           <JobCard key={index} job={job} />
+                       ))} 
+                    </div>
+                )}
 
                 {/* pagination */}
-                {filteredJobs.length > 0 && (
+                {!jobsLoading && filteredJobs.length > 0 && (
                     <div className='flex justify-center items-center  space-x-2 mt-10'>
                         <a href="#job-list">
                             <img onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))} src={assets.left_arrow_icon} alt="" />

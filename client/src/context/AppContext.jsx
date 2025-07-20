@@ -13,6 +13,7 @@ export const AppContextProvider = (props) => {
 
   const [isSearched, setIsSearched] = useState(false);
   const [jobs, setJobs] = useState([]);
+  const [jobsLoading, setJobsLoading] = useState(true);
   const [showRecruiterLogin, setShowRecruiterLogin] = useState(false);
   const [companyToken, setcompanyToken] = useState(null);
   const [companyData, setcompanyData] = useState(null);
@@ -33,6 +34,7 @@ export const AppContextProvider = (props) => {
 
   const fetchJobs = async () => {
     try {
+      setJobsLoading(true);
       const { data } = await axios.get(backendUrl + '/api/jobs');
 
       if (data.success) {
@@ -43,6 +45,8 @@ export const AppContextProvider = (props) => {
       }
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setJobsLoading(false);
     }
   };
 
@@ -157,6 +161,7 @@ export const AppContextProvider = (props) => {
     setIsSearched,
     jobs,
     setJobs,
+    jobsLoading,
     showRecruiterLogin,
     setShowRecruiterLogin,
     companyToken,
