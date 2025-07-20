@@ -15,6 +15,7 @@ export const AppContextProvider = (props) => {
   const [jobs, setJobs] = useState([]);
   const [jobsLoading, setJobsLoading] = useState(true);
   const [showRecruiterLogin, setShowRecruiterLogin] = useState(false);
+  const [showUserAuth, setShowUserAuth] = useState(false);
   const [companyToken, setcompanyToken] = useState(null);
   const [companyData, setcompanyData] = useState(null);
   const [userData, setUserData] = useState(null);
@@ -63,10 +64,24 @@ export const AppContextProvider = (props) => {
         console.log(data);
       }
       else {
-        toast.error(data.message)
+        // If company not found, clear the invalid token
+        if (data.message === "Company not found") {
+          localStorage.removeItem('companyToken');
+          setcompanyToken(null);
+          setcompanyData(null);
+        } else {
+          toast.error(data.message)
+        }
       }
     } catch (error) {
-      toast.error(error.message)
+      // If there's a network error or invalid token, clear it
+      if (error.response?.status === 401 || error.message.includes('token')) {
+        localStorage.removeItem('companyToken');
+        setcompanyToken(null);
+        setcompanyData(null);
+      } else {
+        toast.error(error.message)
+      }
     }
   };
 
@@ -164,6 +179,8 @@ export const AppContextProvider = (props) => {
     jobsLoading,
     showRecruiterLogin,
     setShowRecruiterLogin,
+    showUserAuth,
+    setShowUserAuth,
     companyToken,
     setcompanyToken,
     companyData,

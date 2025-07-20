@@ -1,29 +1,37 @@
 import JobApplication from "../models/JobApplication.js";
 import User from "../models/User.js";
 import Job from "../models/Job.js"
+import bcrypt from 'bcrypt'
 import {v2 as cloudinary} from 'cloudinary'
 import { generateToken } from '../utils/generateToken.js';
 
 // Sign up user
 export const signup = async (req, res) => {
-    try {
-        const { name, email, password } = req.body;
+    const { name, email, password } = req.body;
+    const imageFile = req.file;
 
-        // Check if user already exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.json({ success: false, message: "User already exists" });
+    if (!name || !email || !password || !imageFile) {
+        return res.json({ success: false, message: "missing details" });
+    }
+
+    try {
+        const userExist = await User.findOne({ email });
+
+        if (userExist) {
+            return res.json({ success: false, message: "User already registered" });
         }
 
-        // Create new user
+        const salt = await bcrypt.genSalt(10);
+        const hashPass = await bcrypt.hash(password, salt);
+
+        const imgUpload = await cloudinary.uploader.upload(imageFile.path);
+
         const user = await User.create({
             name,
             email,
-            password
+            password: hashPass,
+            image: imgUpload.secure_url
         });
-
-        // Generate token
-        const token = generateToken(user._id);
 
         res.json({
             success: true,
@@ -35,45 +43,39 @@ export const signup = async (req, res) => {
                 image: user.image,
                 resume: user.resume
             },
-            token
+            token: generateToken(user._id)
         });
-    } catch (error) {
-        res.json({ success: false, message: error.message });
+    } catch (err) {
+        res.json({ success: false, message: err.message });
     }
 };
 
 // Sign in user
 export const signin = async (req, res) => {
+    const { email, password } = req.body;
     try {
-        const { email, password } = req.body;
-
-        // Find user
         const user = await User.findOne({ email });
+
         if (!user) {
-            return res.json({ success: false, message: "User not found" });
+            return res.json({ success: false, message: "Invalid email or password" });
         }
 
-        // Check password
-        const isPasswordValid = await user.comparePassword(password);
-        if (!isPasswordValid) {
-            return res.json({ success: false, message: "Invalid password" });
+        if (await bcrypt.compare(password, user.password)) {
+            res.json({
+                success: true,
+                message: "Login successful",
+                user: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    image: user.image,
+                    resume: user.resume
+                },
+                token: generateToken(user._id)
+            });
+        } else {
+            res.json({ success: false, message: "invalid email and password" });
         }
-
-        // Generate token
-        const token = generateToken(user._id);
-
-        res.json({
-            success: true,
-            message: "Login successful",
-            user: {
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                image: user.image,
-                resume: user.resume
-            },
-            token
-        });
     } catch (error) {
         res.json({ success: false, message: error.message });
     }
@@ -157,7 +159,14 @@ export const updateUserResume = async (req, res) => {
         const userData = await User.findById(userId);
 
         if (resumeFile) {
-            const resumeUpload = await cloudinary.uploader.upload(resumeFile.path);
+            // Convert buffer to base64 for Cloudinary upload
+            const b64 = Buffer.from(resumeFile.buffer).toString('base64');
+            const dataURI = `data:${resumeFile.mimetype};base64,${b64}`;
+            
+            const resumeUpload = await cloudinary.uploader.upload(dataURI, {
+                folder: 'user-resumes',
+                resource_type: 'raw'
+            });
             userData.resume = resumeUpload.secure_url;
         }
 

@@ -4,8 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
 
 const Navbar = () => {
-    const { userData, isAuthenticated, logout } = useContext(AppContext);
-    const { setShowRecruiterLogin } = useContext(AppContext);
+    const { userData, isAuthenticated, logout, setShowRecruiterLogin, setShowUserAuth } = useContext(AppContext);
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -38,16 +37,10 @@ const Navbar = () => {
                             Recruiter Login
                         </button>
                         <button 
-                            onClick={() => navigate('/signin')} 
+                            onClick={() => setShowUserAuth(true)} 
                             className='bg-blue-600 text-white px-6 sm:px-9 py-2 rounded-full'
                         >
                             Login
-                        </button>
-                        <button 
-                            onClick={() => navigate('/signup')} 
-                            className='bg-green-600 text-white px-6 sm:px-9 py-2 rounded-full'
-                        >
-                            Sign Up
                         </button>
                     </div>
                 )}
