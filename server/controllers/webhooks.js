@@ -33,7 +33,7 @@ export const clerkWebhooks =async (req,res)=>{
                 }
 
                 await User.create(userData)
-                res.json({})
+               return res.json({success:true,message:'user created'})
                 break;
             }
             case 'user.updated':{
@@ -43,14 +43,14 @@ export const clerkWebhooks =async (req,res)=>{
                     name : data.first_name + " " + data.last_name,
                     image : data.image_url,
                 }
-                await User.findByIdAndUpdate(data._id,userData);
-                res.json({})
+                await User.findByIdAndUpdate(data.id,userData);
+                return res.json({success:true,message:'user updated'})
                 break;
                 
             }
             case 'user.deleted':{
-                await User.findByIdAndDelete(data._id);
-                res.json({});
+                await User.findByIdAndDelete(data.id);
+                return res.json({success:true,message:'user deleted'})
                 break;
             }
                
