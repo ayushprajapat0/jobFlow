@@ -45,7 +45,7 @@ const Signup = () => {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
         toast.success('Account created successfully!');
-        navigate('/dashboard');
+        navigate('/');
       } else {
         toast.error(response.data.message);
       }

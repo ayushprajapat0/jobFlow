@@ -22,7 +22,7 @@ const ManageJobs = () => {
 
             const {data} = await axios.get(backendUrl+'/api/company/list-jobs', {
                 headers: {
-                    token: companyToken
+                    Authorization: `Bearer ${companyToken}`
                 }
             });
 
@@ -46,7 +46,7 @@ const ManageJobs = () => {
                 id: jobId,
             }, {
                 headers: {
-                    token: companyToken
+                    Authorization: `Bearer ${companyToken}`
                 }
             }); 
 
