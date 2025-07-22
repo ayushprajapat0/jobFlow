@@ -101,11 +101,14 @@ const ViewApplications = () => {
                             <td className='py-2 px-4 border-b max-sm:hidden border-gray-200'>{application.jobId.location}</td>
                             <td className='py-2 px-4 border-b border-gray-200'>
                                 {application.userId.resume ? (
-                                  <a className='bg-blue-50 text-blue-400 px-3 py-1 rounded inline-flex gap-2 items-center' href={application.userId.resume} target="_blank" rel="noopener noreferrer">
-                                    Resume
-                                  </a>
+                                    <button
+                                        className='px-3 py-1 text-xs rounded border border-blue-500 text-blue-600 hover:bg-blue-50 transition-colors duration-150'
+                                        onClick={() => window.open(application.userId.resume, '_blank', 'noopener noreferrer')}
+                                    >
+                                        See Resume
+                                    </button>
                                 ) : (
-                                  <span className='text-gray-400'>No Resume</span>
+                                    <span className='text-gray-400'>No Resume</span>
                                 )}
                             </td>
                             <td className='py-2 px-4 border-b relative border-gray-200'>

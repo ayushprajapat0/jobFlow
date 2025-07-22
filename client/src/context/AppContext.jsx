@@ -40,7 +40,7 @@ export const AppContextProvider = (props) => {
 
       if (data.success) {
         setJobs(data.jobs);
-        console.log(data.jobs);
+          //console.log(data.jobs);
       } else {
         toast.error(data.message);
       }
@@ -61,7 +61,7 @@ export const AppContextProvider = (props) => {
       })
       if (data.success) {
         setcompanyData(data.company)
-        console.log(data);
+       // console.log(data);
       }
       else {
         // If company not found, clear the invalid token

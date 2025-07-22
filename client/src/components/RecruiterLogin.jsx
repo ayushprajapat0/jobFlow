@@ -13,18 +13,21 @@ const RecruiterLogin = () => {
     const [email , setEmail] = useState('');
     const [password , setPassword] = useState('');
 
-    const [image, setImage] = useState(false);
+    const [image, setImage] = useState(null);
 
     const onSubmitHandler =async (e)=>{
         e.preventDefault();
         if(state == 'signup' && !isNextDataSubmitted){
            return setIsNextDataSubmitted(true);
-            
-        } 
-        
+        }
+
+        // Require image for signup
+        if (state === 'signup' && isNextDataSubmitted && (!image || !(image instanceof File))) {
+            toast.error('Please select a company logo!');
+            return;
+        }
 
         try {
-            
             if(state === "login"){
                 const {data} = await axios.post(backendUrl + '/api/company/login',{email , password});
 
@@ -48,7 +51,9 @@ const RecruiterLogin = () => {
                 formData.append('name',name)
                 formData.append('password',password)
                 formData.append('email',email)
-                formData.append('image',image)
+                if (image && image instanceof File) {
+                    formData.append('image', image)
+                }
 
                 const {data} = await axios.post(backendUrl + '/api/company/register',formData)
 
@@ -67,7 +72,7 @@ const RecruiterLogin = () => {
 
             }
         } catch (error) {
-            toast.error(data.message)
+            toast.error(error.message)
         }
 
     }
@@ -91,7 +96,7 @@ const RecruiterLogin = () => {
                 <div className='flex items-center gap-4 my-5'>
                     <label htmlFor="image">
                         <img className='w-16 h-16 rounded-full' src={image?URL.createObjectURL(image):assets.upload_area} alt="" />
-                        <input onChange={(e)=>setImage(e.target.files[0])} type="file" id='image' hidden />
+                        <input onChange={(e)=>setImage(e.target.files[0])} type="file" id='image' hidden required />
                     </label>
                     <p>Upload Company <br />Logo</p>
                 </div>

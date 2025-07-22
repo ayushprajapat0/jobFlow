@@ -1,22 +1,7 @@
 import multer from "multer";
-import fs from "fs";
-import path from "path";
 
-// Create uploads directory if it doesn't exist
-const uploadsDir = 'uploads/';
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Use disk storage like company controller expects
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadsDir)
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname)
-    }
-});
+// Use memory storage for direct Cloudinary upload
+const storage = multer.memoryStorage();
 
 const upload = multer({ 
     storage: storage,

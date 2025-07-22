@@ -12,7 +12,7 @@ const UserAuth = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [image, setImage] = useState(false);
+    const [image, setImage] = useState(null);
     const [isNextDataSubmitted, setIsNextDataSubmitted] = useState(false);
 
     const onSubmitHandler = async (e) => {
@@ -22,6 +22,12 @@ const UserAuth = () => {
             return setIsNextDataSubmitted(true);
         }
 
+        // Require image for signup
+        if (state === 'signup' && isNextDataSubmitted && (!image || !(image instanceof File))) {
+            toast.error('Please select a profile image!');
+            return;
+        }
+
         try {
             if (state === "login") {
                 const { data } = await axios.post(backendUrl + '/api/users/signin', { email, password });
@@ -29,6 +35,7 @@ const UserAuth = () => {
                 if (data.success) {
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
+                    toast.success(data.message)
                     setUserData(data.user);
                     setIsAuthenticated(true);
                     setShowUserAuth(false);
@@ -41,11 +48,8 @@ const UserAuth = () => {
                 formData.append('name', name)
                 formData.append('password', password)
                 formData.append('email', email)
-                formData.append('image', image)
-
-                console.log('Sending FormData with fields:');
-                for (let [key, value] of formData.entries()) {
-                    console.log(key, value);
+                if (image && image instanceof File) {
+                    formData.append('image', image)
                 }
 
                 const { data } = await axios.post(backendUrl + '/api/users/signup', formData)
@@ -53,6 +57,7 @@ const UserAuth = () => {
                 if (data.success) {
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
+                    toast.success(data.message)
                     setUserData(data.user);
                     setIsAuthenticated(true);
                     setShowUserAuth(false);
@@ -84,7 +89,7 @@ const UserAuth = () => {
                         <div className='flex items-center gap-4 my-5'>
                             <label htmlFor="image">
                                 <img className='w-16 h-16 rounded-full' src={image ? URL.createObjectURL(image) : assets.upload_area} alt="" />
-                                <input onChange={(e) => setImage(e.target.files[0])} type="file" id='image' hidden accept="image/*" />
+                                <input onChange={(e) => setImage(e.target.files[0])} type="file" id='image' hidden accept="image/*" required />
                             </label>
                             <p>Upload Profile <br />Picture</p>
                         </div>

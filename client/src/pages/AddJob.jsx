@@ -75,17 +75,25 @@ const AddJob = () => {
         <div className='flex flex-col sm:flex-row gap-2 w-full sm:gap-8'>
             <div>
                 <p className='mb-2'>Job Categories</p>
-                <select className='w-full px-3 py-2 border border-gray-300 rounded' onChange={e=>setCategory(e.target.value)} value={category}>
-                    {JobCategories.map((category, index) => (<option key={index} value={category}>{category}</option>))}
-                </select>
+                <input
+                  type='text'
+                  className='w-full px-3 py-2 border border-gray-300 rounded'
+                  placeholder='Type category (e.g. Programming)'
+                  onChange={e => setCategory(e.target.value)}
+                  value={category}
+                  required
+                />
             </div>
-        
-         
             <div>
                 <p className='mb-2'>Job Location</p>
-                <select className='w-full px-3 py-2 border border-gray-300 rounded' onChange={e=>setLocation(e.target.value)} value={location}>
-                    {JobLocations.map((location, index) => (<option key={index} value={location}>{location}</option>))}
-                </select>
+                <input
+                  type='text'
+                  className='w-full px-3 py-2 border border-gray-300 rounded'
+                  placeholder='Type location (e.g. Bangalore)'
+                  onChange={e => setLocation(e.target.value)}
+                  value={location}
+                  required
+                />
             </div>
 
 

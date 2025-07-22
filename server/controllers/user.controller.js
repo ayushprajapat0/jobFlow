@@ -4,14 +4,18 @@ import Job from "../models/Job.js"
 import bcrypt from 'bcrypt'
 import {v2 as cloudinary} from 'cloudinary'
 import { generateToken } from '../utils/generateToken.js';
+import fs from 'fs';
 
 // Sign up user
 export const signup = async (req, res) => {
     const { name, email, password } = req.body;
     const imageFile = req.file;
 
-    if (!name || !email || !password || !imageFile) {
-        return res.json({ success: false, message: "missing details" });
+    if (!name || !email || !password) {
+        return res.json({ success: false, message: "Missing required fields" });
+    }
+    if (!imageFile) {
+        return res.json({ success: false, message: "Missing required parameter - file (profile image)" });
     }
 
     try {
@@ -24,7 +28,10 @@ export const signup = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashPass = await bcrypt.hash(password, salt);
 
-        const imgUpload = await cloudinary.uploader.upload(imageFile.path);
+        // Upload image from buffer to Cloudinary
+        const b64 = Buffer.from(imageFile.buffer).toString('base64');
+        const dataURI = `data:${imageFile.mimetype};base64,${b64}`;
+        const imgUpload = await cloudinary.uploader.upload(dataURI);
 
         const user = await User.create({
             name,
@@ -155,26 +162,67 @@ export const updateUserResume = async (req, res) => {
     try {
         const userId = req.userId;
         const resumeFile = req.file;
-
-        const userData = await User.findById(userId);
+        console.log('Received file:', resumeFile);
+        const userData = await User.findOne({ _id: userId });
 
         if (resumeFile) {
             // Convert buffer to base64 for Cloudinary upload
             const b64 = Buffer.from(resumeFile.buffer).toString('base64');
             const dataURI = `data:${resumeFile.mimetype};base64,${b64}`;
-            
+
             const resumeUpload = await cloudinary.uploader.upload(dataURI, {
                 folder: 'user-resumes',
                 resource_type: 'raw'
             });
+            console.log('Cloudinary upload result:', resumeUpload);
             userData.resume = resumeUpload.secure_url;
+        } else {
+            console.log('No file received for resume update.');
         }
 
         await userData.save();
-
+        console.log('Updated user:', userData);
         res.json({ success: true, message: "Resume Updated" });
     } catch (error) {
+        console.error('Error in updateUserResume:', error);
         res.json({ success: false, message: error.message });
+    }
+};
+
+export const updateUserProfile = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const { name, email } = req.body;
+        let imageUrl;
+        if (req.file) {
+            const b64 = Buffer.from(req.file.buffer).toString('base64');
+            const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+            const imgUpload = await cloudinary.uploader.upload(dataURI);
+            imageUrl = imgUpload.secure_url;
+        }
+        const updateFields = { name, email };
+        if (imageUrl) updateFields.image = imageUrl;
+        const user = await User.findOneAndUpdate({ _id: userId }, updateFields, { new: true, select: '-password' });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        res.json({ success: true, user });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const getUserProfile = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const user = await User.findOne({_id: userId}).select('-password');
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        console.log(user);
+        res.json({ success: true, user });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 

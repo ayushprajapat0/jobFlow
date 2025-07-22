@@ -1,4 +1,5 @@
 import logo from "./logo.svg";
+import favicon from './favicon.svg'
 import a3 from './a3.png'
 import search_icon from "./search_icon.svg";
 import company_icon from "./company_icon.svg";
@@ -37,6 +38,7 @@ import amazon_logo from './amazon_logo.png'
 
 export const assets = {
     logo,
+    favicon,
     search_icon,
     cross_icon,
     upload_area,

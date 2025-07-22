@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard'
 import AddJob from './pages/AddJob'
 import ManageJobs from './pages/ManageJobs'
 import ViewApplications from './pages/ViewApplications'
+import Profile from './pages/Profile';
 import 'quill/dist/quill.snow.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
@@ -35,6 +36,7 @@ const App = () => {
             <Route path='view-applications' element={<ViewApplications/>}/> 
           </> : null}
         </Route>
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </div>
   )

@@ -53,7 +53,7 @@ const Application = () => {
         <h2 className='text-xl font-semibold'>Your Resume</h2>
         <div className='flex mb-6 gap-2 mt-3'>
           {
-            isEdit || userData && userData.resume === "" ?
+            isEdit || (userData && userData.resume === "") ?
               <>
                 <label className='flex items-center' htmlFor="resumeUpload">
                   <p className='bg-blue-100 text-blue-500 px-4 py-2 rounded-lg mr-2 '>{resume ? resume.name : "Select Resume"}</p>
@@ -63,12 +63,14 @@ const Application = () => {
                 <button onClick={updateResume} className='bg-green-100 border-green-400 rounded-lg px-4 py-2'>Save</button>
               </>
               :
-              <div className='flex gap-2'>
-                <a className='bg-blue-100 text-blue-600 px-4 py-2 rounded-lg' target='_blank' href={userData.resume}>
-                  Resume
-                </a>
-                <button onClick={() => setIsEdit(true)} className='text-gray-500 border border-gray-300 rounded-lg px-4 py-2'>Edit</button>
-              </div>
+              userData && userData.resume ? (
+                <div className='flex gap-2'>
+                  <a className='bg-blue-100 text-blue-600 px-4 py-2 rounded-lg' target='_blank' href={userData.resume} rel="noopener noreferrer">
+                    Resume
+                  </a>
+                  <button onClick={() => setIsEdit(true)} className='text-gray-500 border border-gray-300 rounded-lg px-4 py-2'>Edit</button>
+                </div>
+              ) : null
           }
         </div>
 

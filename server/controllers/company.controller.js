@@ -12,8 +12,11 @@ export const registerCompany=async (req,res)=>{
 
     const imageFile = req.file;
 
-    if(!name || !email || !password || !imageFile){
-        return res.json({success:false, message:"missing details"});
+    if(!name || !email || !password){
+        return res.json({success:false, message:"Missing required fields"});
+    }
+    if(!imageFile){
+        return res.json({success:false, message:"Missing required parameter - file (company logo)"});
     }
 
     try{
@@ -27,7 +30,10 @@ export const registerCompany=async (req,res)=>{
         const salt = await bcrypt.genSalt(10);
         const hashPass = await bcrypt.hash(password,salt);
 
-        const imgUpload = await cloudinary.uploader.upload(imageFile.path);
+        // Upload image from buffer to Cloudinary
+        const b64 = Buffer.from(imageFile.buffer).toString('base64');
+        const dataURI = `data:${imageFile.mimetype};base64,${b64}`;
+        const imgUpload = await cloudinary.uploader.upload(dataURI);
 
         const company = await Company.create({
             name,
@@ -115,7 +121,7 @@ export const postJob = async (req,res)=>{
 
         await newJob.save();
 
-        res.json({success:true , newJob});
+        res.json({success:true , message:"Job posted successfully", newJob});
     } catch (error) {
         res.json({success:false,message:error.message});
     }
